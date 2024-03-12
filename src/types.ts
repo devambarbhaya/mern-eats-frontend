@@ -24,5 +24,5 @@ export type Restaurant = {
 export type MenuItem = {
   _id: string;
   name: string;
-  price: string;
+  price: number;
 };
