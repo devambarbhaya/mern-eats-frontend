@@ -1,4 +1,5 @@
 import { useSearchRestaurants } from "@/api/RestaurantApi";
+import CuisineFilter from "@/components/CuisineFilter";
 import PaginationSelector from "@/components/PaginationSelector";
 import SearchBar, { SearchForm } from "@/components/SearchBar";
 import SearchResultCard from "@/components/SearchResultCard";
@@ -9,16 +10,20 @@ import { useParams } from "react-router-dom";
 export type SearchState = {
   searchQuery: string;
   page: number;
+  selectedCuisines: string[];
 };
 
 const SearchPage = () => {
   const { city } = useParams();
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
+
   const [searchState, setSearchState] = useState<SearchState>({
     searchQuery: "",
     page: 1,
+    selectedCuisines: [],
   });
   const { results, isLoading } = useSearchRestaurants(searchState, city);
-   
+
   const setSearchQuery = (searchFormData: SearchForm) => {
     setSearchState((prevState) => ({
       ...prevState,
@@ -39,8 +44,16 @@ const SearchPage = () => {
     setSearchState((prevState) => ({
       ...prevState,
       page,
-    }))
-  }
+    }));
+  };
+
+  const setSelectedCuisines = (selectedCuisines: string[]) => {
+    setSearchState((prevState) => ({
+      ...prevState,
+      selectedCuisines,
+      page: 1,
+    }));
+  };
 
   if (isLoading) {
     <span>Loading...</span>;
@@ -52,11 +65,20 @@ const SearchPage = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-[250px_1fr] gap-5">
-      <div id="cuisines-list">Insert Cuisines here</div>
+      <div id="cuisines-list">
+        <CuisineFilter
+          selectedCuisines={searchState.selectedCuisines}
+          onChange={setSelectedCuisines}
+          isExpanded={isExpanded}
+          onExpandedClick={() =>
+            setIsExpanded((prevIsExpanded) => !prevIsExpanded)
+          }
+        />
+      </div>
       <div id="main-content" className="flex flex-col gap-5">
         <SearchBar
           onSubmit={setSearchQuery}
-          placeholder="Search by cuisine or restaurant name"
+          placeholder="Search by cuisine or restaurant name in the current city."
           onReset={resetSearch}
           searchQuery={searchState.searchQuery}
         />
@@ -64,8 +86,8 @@ const SearchPage = () => {
         {results?.data.map((restaurant) => (
           <SearchResultCard restaurant={restaurant} />
         ))}
-        <PaginationSelector 
-          page={results.pagination.page} 
+        <PaginationSelector
+          page={results.pagination.page}
           pages={results.pagination.pages}
           onPageChange={setPage}
         />
