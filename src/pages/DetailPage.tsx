@@ -1,5 +1,5 @@
 import { useGetRestaurant } from "@/api/RestaurantApi";
-import MenuItemCard from "@/components/MenuItem";
+import MenuItemCard from "@/components/MenuItemCard";
 import OrderSummary from "@/components/OrderSummary";
 import RestaurantInfo from "@/components/RestaurantInfo";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
@@ -19,7 +19,7 @@ const DetailPage = () => {
   const { restaurantId } = useParams();
   const { restaurant, isLoading } = useGetRestaurant(restaurantId);
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
-  
+
   const addToCart = (menuItem: MenuItemType) => {
     setCartItems((prevCartItems) => {
       const existingCartItem = prevCartItems.find(
@@ -49,6 +49,16 @@ const DetailPage = () => {
     });
   };
 
+  const removeFromCart = (cartItem: CartItem) => {
+    setCartItems((prevCartItems) => {
+      const updatedCartItems = prevCartItems.filter(
+        (item) => cartItem._id !== item._id
+      );
+
+      return updatedCartItems;
+    });
+  };
+
   if (isLoading || !restaurant) {
     return <div>Loading...</div>;
   }
@@ -64,14 +74,19 @@ const DetailPage = () => {
       <div className="grid md:grid-cols-[4fr_2fr] gap-5 md:px-32">
         <div className="flex flex-col gap-4">
           <RestaurantInfo restaurant={restaurant} />
-          <span className="text-2xl font-bold tracking-tight">Menu <span className="text-xs">(Click to add to cart)</span></span>
+          <span className="text-2xl font-bold tracking-tight">
+            Menu <span className="text-xs">(Click to add to cart)</span>
+          </span>
           {restaurant.menuItems.map((menuItem) => (
-            <MenuItemCard menuItem={menuItem} addToCart={() => addToCart(menuItem)} />
+            <MenuItemCard
+              menuItem={menuItem}
+              addToCart={() => addToCart(menuItem)}
+            />
           ))}
         </div>
         <div className="">
           <Card>
-            <OrderSummary restaurant={restaurant} cartItems={cartItems} />
+            <OrderSummary restaurant={restaurant} cartItems={cartItems} removeFromCart={removeFromCart}/>
           </Card>
         </div>
       </div>
