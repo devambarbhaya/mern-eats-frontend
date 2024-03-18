@@ -30,17 +30,25 @@ type props = {
   onSave: (userProfileData: UserFormData) => void;
   isLoading: boolean;
   currentUser: User;
+  title?: string;
+  buttonText?: string;
 };
 
-export const UserProfileForm = ({ onSave, isLoading, currentUser }: props) => {
+export const UserProfileForm = ({
+  onSave,
+  isLoading,
+  currentUser,
+  title = "User Profile",
+  buttonText = "Submit",
+}: props) => {
   const form = useForm<UserFormData>({
     resolver: zodResolver(formSchema),
     defaultValues: currentUser,
   });
 
   useEffect(() => {
-    form.reset(currentUser)
-  }, [currentUser, form])
+    form.reset(currentUser);
+  }, [currentUser, form]);
 
   return (
     <Form {...form}>
@@ -49,7 +57,7 @@ export const UserProfileForm = ({ onSave, isLoading, currentUser }: props) => {
         className="space-y-4 bg-gray-50 rounded-lg md:p-10"
       >
         <div>
-          <h2 className="text-2xl font-bold">User-Profile Form</h2>
+          <h2 className="text-2xl font-bold">{title}</h2>
           <FormDescription>
             View and change your profile information here
           </FormDescription>
@@ -124,7 +132,7 @@ export const UserProfileForm = ({ onSave, isLoading, currentUser }: props) => {
           <LoadingButton />
         ) : (
           <Button type="submit" className="bg-orange-500">
-            Submit
+            {buttonText}
           </Button>
         )}
       </form>
